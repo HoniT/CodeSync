@@ -5,3 +5,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+app:
+  jjwt:
+    secret: ${JWT_SECRET_KEY}
+    duration: 3600000 # 1 hour

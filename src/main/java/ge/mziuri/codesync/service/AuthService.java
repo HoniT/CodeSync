@@ -1,8 +1,8 @@
 package ge.mziuri.codesync.service;
 
 import ge.mziuri.codesync.exception.HttpErrorException;
-import ge.mziuri.codesync.model.dto.LoginRequest;
-import ge.mziuri.codesync.model.dto.RegisterRequest;
+import ge.mziuri.codesync.model.dto.auth.LoginRequest;
+import ge.mziuri.codesync.model.dto.auth.RegisterRequest;
 import ge.mziuri.codesync.model.entity.User;
 import ge.mziuri.codesync.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

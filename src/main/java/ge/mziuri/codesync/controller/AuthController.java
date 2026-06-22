@@ -1,7 +1,7 @@
 package ge.mziuri.codesync.controller;
 
-import ge.mziuri.codesync.model.dto.LoginRequest;
-import ge.mziuri.codesync.model.dto.RegisterRequest;
+import ge.mziuri.codesync.model.dto.auth.LoginRequest;
+import ge.mziuri.codesync.model.dto.auth.RegisterRequest;
 import ge.mziuri.codesync.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

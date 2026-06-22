@@ -3,6 +3,7 @@ package ge.mziuri.codesync.security;
 import ge.mziuri.codesync.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,27 +16,33 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private static final String AUTHORIZATION_HEADER = "Authorization";
     private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var authHeader = request.getHeader(AUTHORIZATION_HEADER);
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
         try {
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 var username = tokenService.getTokenUsername(token);
+
                 var authentication = new UsernamePasswordAuthenticationToken(username, token, List.of());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            System.err.println("Token validation FAILED: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

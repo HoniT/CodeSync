@@ -8,9 +8,10 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class DocumentDto {
+public class DocumentDetailDto {
     private UUID id;
     private String title;
+    private String content;
     private String creatorUsername;
     private LocalDateTime createdAt;
     private LocalDateTime lastSavedAt;

@@ -3,7 +3,7 @@ package ge.mziuri.codesync.service;
 import ge.mziuri.codesync.exception.HttpErrorException;
 import ge.mziuri.codesync.mapper.DocumentMapper;
 import ge.mziuri.codesync.model.dto.documents.CreateDocumentRequest;
-import ge.mziuri.codesync.model.dto.documents.DocumentDto;
+import ge.mziuri.codesync.model.dto.documents.DocumentDetailDto;
 import ge.mziuri.codesync.model.entity.User;
 import ge.mziuri.codesync.model.entity.Document;
 import ge.mziuri.codesync.repository.DocumentRepository;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class DocumentService {
@@ -27,7 +28,7 @@ public class DocumentService {
     @Autowired
     private DocumentMapper documentMapper;
 
-    public void createDocument(CreateDocumentRequest request) {
+    public DocumentDetailDto createDocument(CreateDocumentRequest request) {
         String initialContent = "";
 
         // Check if the user uploaded a file
@@ -47,11 +48,13 @@ public class DocumentService {
         document.setTitle(request.getTitle());
         document.setCreator(creator);
         document.setContent(initialContent);
+        document.setAccessCode(request.getAccessCode());
 
-        documentRepository.save(document);
+        Document created = documentRepository.save(document);
+        return documentMapper.entityToDetailsDto(created, true);
     }
 
-    public List<DocumentDto> getPublicDocuments(int pageNumber, int pageSize, String sortParam) {
+    public List<DocumentDetailDto> getDocuments(int pageNumber, int pageSize, String sortParam) {
         if (sortParam == null) sortParam = "createdDesc";
 
         Sort sort = switch (sortParam) {
@@ -62,6 +65,15 @@ public class DocumentService {
         };
 
         PageRequest page = PageRequest.of(pageNumber, pageSize, sort);
-        return documentRepository.findAll(page).getContent().stream().map(documentMapper::entityToDto).toList();
+        return documentRepository.findAll(page).getContent().stream().map(d -> documentMapper.entityToDetailsDto(d, false)).toList();
+    }
+
+    public DocumentDetailDto getDocument(UUID id, String accessCode) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new HttpErrorException(HttpStatus.NOT_FOUND.value(), "Document not found for ID: " + id));
+        if(document.getAccessCode() != null && !document.getAccessCode().equals(accessCode))
+            throw new HttpErrorException(HttpStatus.FORBIDDEN.value(), "Invalid access code for the document");
+
+        return documentMapper.entityToDetailsDto(document, true);
     }
 }

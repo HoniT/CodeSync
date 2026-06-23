@@ -1,4 +1,4 @@
-package ge.mziuri.codesync.model.dto;
+package ge.mziuri.codesync.model.dto.documents;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

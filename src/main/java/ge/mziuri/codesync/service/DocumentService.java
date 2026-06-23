@@ -1,7 +1,9 @@
 package ge.mziuri.codesync.service;
 
 import ge.mziuri.codesync.exception.HttpErrorException;
-import ge.mziuri.codesync.model.dto.CreateDocumentRequest;
+import ge.mziuri.codesync.mapper.DocumentMapper;
+import ge.mziuri.codesync.model.dto.documents.CreateDocumentRequest;
+import ge.mziuri.codesync.model.dto.documents.DocumentDto;
 import ge.mziuri.codesync.model.entity.User;
 import ge.mziuri.codesync.model.entity.Document;
 import ge.mziuri.codesync.repository.DocumentRepository;
@@ -22,6 +24,8 @@ public class DocumentService {
     private DocumentRepository documentRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private DocumentMapper documentMapper;
 
     public void createDocument(CreateDocumentRequest request) {
         String initialContent = "";
@@ -47,7 +51,7 @@ public class DocumentService {
         documentRepository.save(document);
     }
 
-    public List<Document> getPublicDocuments(int pageNumber, int pageSize, String sortParam) {
+    public List<DocumentDto> getPublicDocuments(int pageNumber, int pageSize, String sortParam) {
         if (sortParam == null) sortParam = "createdDesc";
 
         Sort sort = switch (sortParam) {
@@ -58,6 +62,6 @@ public class DocumentService {
         };
 
         PageRequest page = PageRequest.of(pageNumber, pageSize, sort);
-        return documentRepository.findAll(page).getContent();
+        return documentRepository.findAll(page).getContent().stream().map(documentMapper::entityToDto).toList();
     }
 }

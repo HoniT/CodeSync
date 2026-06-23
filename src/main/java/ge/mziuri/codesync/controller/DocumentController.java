@@ -1,6 +1,7 @@
 package ge.mziuri.codesync.controller;
 
-import ge.mziuri.codesync.model.dto.CreateDocumentRequest;
+import ge.mziuri.codesync.model.dto.documents.CreateDocumentRequest;
+import ge.mziuri.codesync.model.dto.documents.DocumentDto;
 import ge.mziuri.codesync.model.entity.Document;
 import ge.mziuri.codesync.service.DocumentService;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class DocumentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Document>> getPublicDocuments(int pageNumber, int pageSize, String sortParam) {
+    public ResponseEntity<List<DocumentDto>> getPublicDocuments(int pageNumber, int pageSize, String sortParam) {
         return ResponseEntity.ok(documentService.getPublicDocuments(pageNumber, pageSize, sortParam));
     }
 }

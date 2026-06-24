@@ -3,6 +3,7 @@ package ge.mziuri.codesync.service;
 import ge.mziuri.codesync.exception.HttpErrorException;
 import ge.mziuri.codesync.model.dto.auth.LoginRequest;
 import ge.mziuri.codesync.model.dto.auth.RegisterRequest;
+import ge.mziuri.codesync.model.dto.auth.UserResponseDto;
 import ge.mziuri.codesync.model.entity.User;
 import ge.mziuri.codesync.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -32,6 +36,14 @@ public class AuthService {
         return tokenService.generateToken(authentication.getName());
     }
 
+    public String authenticateAndGetToken(RegisterRequest registerRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(registerRequest.getUsername(), registerRequest.getPassword())
+        );
+
+        return tokenService.generateToken(authentication.getName());
+    }
+
     public void registerUser(RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new HttpErrorException(HttpStatus.CONFLICT.value(), "Username is already taken!");
@@ -42,5 +54,10 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         userRepository.save(user);
+    }
+
+    public UserResponseDto getCurrUser() {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        return new UserResponseDto(username);
     }
 }

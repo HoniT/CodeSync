@@ -35,4 +35,13 @@ public class DocumentController {
     public ResponseEntity<DocumentDetailDto> getDocument(@PathVariable("id") UUID id, @PathParam("accessCode") String accessCode) {
         return ResponseEntity.ok(documentService.getDocument(id, accessCode));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<DocumentDetailDto>> getDocumentsByUser(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "50") int pageSize,
+            @RequestParam(required = false) String sortParam
+    ) {
+        return ResponseEntity.ok(documentService.getDocumentsByUser(pageNumber, pageSize, sortParam));
+    }
 }

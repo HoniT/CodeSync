@@ -35,7 +35,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         });
 
         if (res.ok) {
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         } else {
             let backendMessage = "Registration failed. Verify input parameters.";
             try {

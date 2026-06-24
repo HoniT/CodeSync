@@ -76,4 +76,25 @@ public class DocumentService {
 
         return documentMapper.entityToDetailsDto(document, true);
     }
+
+    public List<DocumentDetailDto> getDocumentsByUser(int pageNumber, int pageSize, String sortParam) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+        if (sortParam == null) sortParam = "createdDesc";
+
+        Sort sort = switch (sortParam) {
+            case "createdAsc" -> Sort.by(Sort.Direction.ASC, "createdAt");
+            case "savedAsc" -> Sort.by(Sort.Direction.ASC, "lastSavedAt");
+            case "savedDesc" -> Sort.by(Sort.Direction.DESC, "lastSavedAt");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+        };
+
+        PageRequest page = PageRequest.of(pageNumber, pageSize, sort);
+
+        return documentRepository.findAllByCreator_Username(username, page)
+                .getContent()
+                .stream()
+                .map(d -> documentMapper.entityToDetailsDto(d, false))
+                .toList();
+    }
 }

@@ -29,9 +29,8 @@ document.getElementById('btnCancelAccess').addEventListener('click', () => {
     targetPrivateDocId = null;
 });
 
-document.getElementById('btnLogout').addEventListener('click', async () => {
-    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (err) {}
-    window.location.href = 'login.html';
+document.getElementById('btnProfile').addEventListener('click', () => {
+    window.location.href = 'profile.html';
 });
 
 accessForm.addEventListener('submit', async (e) => {
@@ -145,6 +144,7 @@ async function fetchDocuments() {
         card.innerHTML = `
             <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
             <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
+            <div class="doc-meta">Last Saved: ${new Date(doc.lastSavedAt).toLocaleDateString()}</div>
         `;
         docGrid.appendChild(card);
     });

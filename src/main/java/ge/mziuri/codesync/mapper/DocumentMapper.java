@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class DocumentMapper {
     public DocumentDetailDto entityToDetailsDto(Document document, boolean copyContent) {
         return new DocumentDetailDto(document.getId(), document.getTitle(),
-                copyContent ? document.getContent() : null, document.getCreator().getUsername(),
+                copyContent ? document.getContent() : null, document.getAccessCode() == null, document.getCreator().getUsername(),
                 document.getCreatedAt(), document.getLastSavedAt());
     }
 }

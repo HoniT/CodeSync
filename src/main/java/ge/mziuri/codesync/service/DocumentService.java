@@ -59,8 +59,8 @@ public class DocumentService {
 
         Sort sort = switch (sortParam) {
             case "createdAsc" -> Sort.by(Sort.Direction.ASC, "createdAt");
-            case "savedAsc" -> Sort.by(Sort.Direction.ASC, "");
-            case "savedDesc" -> Sort.by(Sort.Direction.DESC, "");
+            case "savedAsc" -> Sort.by(Sort.Direction.ASC, "lastSavedAt");
+            case "savedDesc" -> Sort.by(Sort.Direction.DESC, "lastSavedAt");
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
 
@@ -72,7 +72,7 @@ public class DocumentService {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new HttpErrorException(HttpStatus.NOT_FOUND.value(), "Document not found for ID: " + id));
         if(document.getAccessCode() != null && !document.getAccessCode().equals(accessCode))
-            throw new HttpErrorException(HttpStatus.FORBIDDEN.value(), "Invalid access code for the document");
+            throw new HttpErrorException(HttpStatus.BAD_REQUEST.value(), "Invalid access code for the document");
 
         return documentMapper.entityToDetailsDto(document, true);
     }

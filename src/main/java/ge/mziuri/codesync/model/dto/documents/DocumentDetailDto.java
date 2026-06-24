@@ -12,6 +12,7 @@ public class DocumentDetailDto {
     private UUID id;
     private String title;
     private String content;
+    private boolean isPublic;
     private String creatorUsername;
     private LocalDateTime createdAt;
     private LocalDateTime lastSavedAt;

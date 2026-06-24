@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CodeSync</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>CodeSync Dashboard</h2>
+        <div class="header-actions">
+            <label for="sortSelect"></label><select id="sortSelect" class="btn-sm" style="background-color: #2c2c2c; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 8px;">
+                <option value="createdDesc">Newest Created</option>
+                <option value="createdAsc">Oldest Created</option>
+                <option value="savedDesc">Recently Saved</option>
+                <option value="savedAsc">Oldest Saved</option>
+            </select>
+            <button id="btnNewDoc" class="btn-sm">+ New Document</button>
+            <button id="btnLogout" class="btn-sm btn-danger">Logout</button>
+        </div>
+    </div>
+
+    <div id="docGrid" class="doc-grid"></div>
+</div>
+
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <h3>Create New Document</h3>
+        <form id="createForm">
+            <input type="text" id="docTitle" placeholder="Document Title" required>
+            <div class="modal-actions">
+                <button type="button" id="btnCancel" class="btn-danger">Cancel</button>
+                <button type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="accessModal" class="modal">
+    <div class="modal-content">
+        <h3>Private Document</h3>
+        <p style="margin-bottom: 15px; font-size: 0.9rem; color: #aaa;">This document requires an access code.</p>
+        <form id="accessForm">
+            <label for="accessCodeInput"></label><input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
+            <div class="modal-actions">
+                <button type="button" id="btnCancelAccess" class="btn-danger">Cancel</button>
+                <button type="submit">Join Document</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>

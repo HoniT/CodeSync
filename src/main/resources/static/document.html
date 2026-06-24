@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor - CodeSync</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div class="container" style="max-width: 1400px; padding: 10px;">
+    <div class="header" style="padding: 10px 0; margin-bottom: 10px;">
+        <h3 id="docTitleHeader">Loading Document...</h3>
+        <button id="btnBack" class="btn-sm" style="width: auto;">← Back to Dashboard</button>
+    </div>
+
+    <div class="editor-container">
+        <div class="editor-status">
+            <span id="connStatus"><span class="status-indicator status-offline"></span>Connecting...</span>
+            <span id="saveStatus" style="color: #888;">All changes saved</span>
+        </div>
+        <label for="editor"></label><textarea id="editor" disabled placeholder="Establishing real-time connection..."></textarea>
+    </div>
+</div>
+<script src="document.js"></script>
+</body>
+</html>

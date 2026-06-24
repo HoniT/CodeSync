@@ -9,9 +9,9 @@
 <body>
 <div class="container">
     <div class="header">
-        <h2>CodeSync Dashboard</h2>
+        <h2>CodeSync</h2>
         <div class="header-actions">
-            <label for="sortSelect"></label><select id="sortSelect" class="btn-sm" style="background-color: #2c2c2c; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 8px;">
+            <label for="sortSelect"></label><select id="sortSelect" class="btn-sm">
                 <option value="createdDesc">Newest Created</option>
                 <option value="createdAsc">Oldest Created</option>
                 <option value="savedDesc">Recently Saved</option>
@@ -28,11 +28,20 @@
 <div id="createModal" class="modal">
     <div class="modal-content">
         <h3>Create New Document</h3>
+        <div id="createErrorMsg" class="error-msg"></div>
         <form id="createForm">
-            <input type="text" id="docTitle" placeholder="Document Title" required>
+            <label style="font-size: 0.85rem; color: #aaa;">Document Title *</label>
+            <label for="docTitle"></label><input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100">
+
+            <label style="font-size: 0.85rem; color: #aaa;">Access Code (Optional for private docs)</label>
+            <label for="docAccessCode"></label><input type="text" id="docAccessCode" placeholder="Alphanumeric, 4-20 chars" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$">
+
+            <label style="font-size: 0.85rem; color: #aaa;">Clone from File (Optional)</label>
+            <input type="file" id="docFileToClone" accept=".txt,.md,.java,.js,.html,.css" style="background: none; padding: 10px 0;">
+
             <div class="modal-actions">
                 <button type="button" id="btnCancel" class="btn-danger">Cancel</button>
-                <button type="submit">Create</button>
+                <button type="submit" id="btnSubmitCreate">Create</button>
             </div>
         </form>
     </div>
@@ -42,16 +51,16 @@
     <div class="modal-content">
         <h3>Private Document</h3>
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #aaa;">This document requires an access code.</p>
+        <div id="accessErrorMsg" class="error-msg"></div>
         <form id="accessForm">
             <label for="accessCodeInput"></label><input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
             <div class="modal-actions">
                 <button type="button" id="btnCancelAccess" class="btn-danger">Cancel</button>
-                <button type="submit">Join Document</button>
+                <button type="submit" id="btnSubmitAccess">Join Document</button>
             </div>
         </form>
     </div>
 </div>
-
 <script src="index.js"></script>
 </body>
 </html>

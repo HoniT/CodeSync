@@ -1,6 +1,10 @@
 const urlParams = new URLSearchParams(window.location.search);
 const docId = urlParams.get('id');
+const accessCode = urlParams.get('accessCode');
+
 if (!docId) window.location.href = 'index.html';
+
+const clientId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
 
 const dmp = new diff_match_patch();
 const editor = document.getElementById('editor');
@@ -17,10 +21,7 @@ document.getElementById('btnBack').addEventListener('click', () => {
 
 async function initDocument() {
     try {
-        // Extract access code from URL if it exists
-        const accessCode = urlParams.get('accessCode');
-
-        // Append it as a query parameter for the backend to validate
+        // Build the correct URL depending on if an access code was provided
         let fetchUrl = `/api/documents/${docId}`;
         if (accessCode) {
             fetchUrl += `?accessCode=${encodeURIComponent(accessCode)}`;
@@ -29,15 +30,15 @@ async function initDocument() {
         const res = await fetch(fetchUrl);
 
         if (res.status === 401 || res.status === 403) {
-            alert("Unauthorized. Incorrect access code or you are not logged in.");
-            window.location.href = 'index.html'; // Kick them back to dashboard
+            alert("Unauthorized. Incorrect access code or session expired.");
+            window.location.href = 'index.html';
             return;
         }
 
         if (!res.ok) throw new Error("Failed to load document");
 
         const doc = await res.json();
-        titleHeader.textContent = doc.title;
+        titleHeader.textContent = doc.title || "Untitled Document";
         editor.value = doc.content || "";
         previousText = editor.value;
 
@@ -60,6 +61,10 @@ function connectWebSocket() {
 
         stompClient.subscribe(`/topic/document/${docId}`, function (message) {
             const payload = JSON.parse(message.body);
+            if (payload.senderId === clientId) {
+                return;
+            }
+
             applyIncomingPatch(payload.patchText);
         });
     }, function(error) {
@@ -84,7 +89,8 @@ editor.addEventListener('input', function() {
     if (stompClient && stompClient.connected && patchText.length > 0) {
         stompClient.send("/api/document/update", {}, JSON.stringify({
             documentId: docId,
-            patchText: patchText
+            patchText: patchText,
+            senderId: clientId
         }));
         setTimeout(() => saveStatus.textContent = "All changes saved", 500);
     }
@@ -97,6 +103,7 @@ function applyIncomingPatch(patchTextString) {
     const cursorStart = editor.selectionStart;
     const cursorEnd = editor.selectionEnd;
 
+    // Apply remote patch to our local text box seamlessly
     const results = dmp.patch_apply(patches, editor.value);
     const newMergedText = results[0];
 

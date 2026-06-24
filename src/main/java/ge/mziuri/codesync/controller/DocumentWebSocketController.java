@@ -15,9 +15,9 @@ public class DocumentWebSocketController {
     @Autowired
     private DocumentSyncService documentSyncService;
 
-    @MessageMapping("/documents/update")
+    @MessageMapping("document/update")
     public void handleDocumentUpdate(@Payload UpdateDocumentRequest request) {
         documentSyncService.applyPatchToDocument(request.getDocumentId(), request.getPatchText());
-        messagingTemplate.convertAndSend("/topic/documents/" + request.getDocumentId(), request);
+        messagingTemplate.convertAndSend("/topic/document/" + request.getDocumentId(), request);
     }
 }

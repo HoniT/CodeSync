@@ -4,7 +4,26 @@ CodeSync is a real-time collaborative code and document synchronization platform
 it leverages WebSockets and stateless JWT authentication to provide secure, instantaneous document sharing.
 
 ## Features & API highlights
-I'll fill this in when everything's finished
+* Secure Authentication: Stateless JWT authentication delivered via HttpOnly cookies to mitigate XSS vulnerabilities.
+* Real-Time Collaboration: WebSocket integration using STOMP for instant communication and document updates.
+* Smart Initialization: Create new collaborative documents from scratch or instantly clone existing code files via multipart file uploads.
+* Modern Security: Fully configured CORS, password hashing (BCrypt), and robust preflight request handling.
+* Automated Migrations: Database schema versioning and initializations handled seamlessly via Flyway.
+
+### API Highlights
+#### Authentication
+* POST /api/auth/register - Register a new user account.
+* POST /api/auth/login - Authenticate and receive an HttpOnly JWT cookie.
+* POST /api/auth/logout - Clear the authentication session.
+
+#### Documents
+* POST /api/documents - Create a new document (Supports multipart/form-data to clone existing files).
+* GET /api/documents - Fetch documents
+* GET /api/documents/{id} - Fetch document details.
+
+#### WebSockets
+* ws://localhost:8080/ws - WebSocket handshake endpoint
+* /api/document/update - Updating document using websockets
 
 ## Tech Stack
 * Backend: Java, Spring Boot 4

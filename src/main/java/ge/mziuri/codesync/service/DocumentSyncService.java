@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * Services that caches saved documents and updates them to the DB every 5 seconds
+ * Services that caches saved documents and updates them to the DB periodically
  * */
 @Service
 public class DocumentSyncService {

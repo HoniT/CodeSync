@@ -1,17 +1,16 @@
 const createModal = document.getElementById('createModal');
 const createForm = document.getElementById('createForm');
+const createErrorMsg = document.getElementById('createErrorMsg');
 const docGrid = document.getElementById('docGrid');
 
 const accessModal = document.getElementById('accessModal');
 const accessForm = document.getElementById('accessForm');
+const accessErrorMsg = document.getElementById('accessErrorMsg');
 const sortSelect = document.getElementById('sortSelect');
 
 let targetPrivateDocId = null;
 
-// Handle Sorting Changes
-sortSelect.addEventListener('change', () => {
-    fetchDocuments();
-});
+sortSelect.addEventListener('change', fetchDocuments);
 
 document.getElementById('btnNewDoc').addEventListener('click', () => {
     createModal.style.display = 'flex';
@@ -20,21 +19,14 @@ document.getElementById('btnNewDoc').addEventListener('click', () => {
 document.getElementById('btnCancel').addEventListener('click', () => {
     createModal.style.display = 'none';
     createForm.reset();
+    createErrorMsg.style.display = 'none';
 });
 
-// Handle Access Modal Cancellation
 document.getElementById('btnCancelAccess').addEventListener('click', () => {
     accessModal.style.display = 'none';
     accessForm.reset();
+    accessErrorMsg.style.display = 'none';
     targetPrivateDocId = null;
-});
-
-// Handle Access Code Submission
-accessForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const code = document.getElementById('accessCodeInput').value;
-    // Redirect to the document and pass the access code in the URL
-    window.location.href = `document.html?id=${targetPrivateDocId}&accessCode=${encodeURIComponent(code)}`;
 });
 
 document.getElementById('btnLogout').addEventListener('click', async () => {
@@ -42,21 +34,86 @@ document.getElementById('btnLogout').addEventListener('click', async () => {
     window.location.href = 'login.html';
 });
 
+accessForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('accessCodeInput').value;
+    const submitBtn = document.getElementById('btnSubmitAccess');
+
+    submitBtn.disabled = true;
+    accessErrorMsg.style.display = 'none';
+
+    try {
+        const res = await fetch(`/api/documents/${targetPrivateDocId}?accessCode=${encodeURIComponent(code)}`);
+
+        if (res.ok) {
+            window.location.href = `document.html?id=${targetPrivateDocId}&accessCode=${encodeURIComponent(code)}`;
+        } else if (res.status === 401 || res.status === 403) {
+            accessErrorMsg.textContent = "Incorrect access code.";
+            accessErrorMsg.style.display = 'block';
+        } else {
+            accessErrorMsg.textContent = "Unable to verify document. Try again.";
+            accessErrorMsg.style.display = 'block';
+        }
+    } catch (err) {
+        accessErrorMsg.textContent = "Network error. Please try again.";
+        accessErrorMsg.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+    }
+});
+
 createForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', document.getElementById('docTitle').value);
+    const submitBtn = document.getElementById('btnSubmitCreate');
+    submitBtn.disabled = true;
+    createErrorMsg.style.display = 'none';
 
-    const res = await fetch('/api/documents', { method: 'POST', body: formData });
+    const title = document.getElementById('docTitle').value.trim();
+    const accessCode = document.getElementById('docAccessCode').value.trim();
+    const fileInput = document.getElementById('docFileToClone');
 
-    if (res.status === 401 || res.status === 403) {
-        window.location.href = 'login.html';
+    if (accessCode && !/^[a-zA-Z0-9]{4,20}$/.test(accessCode)) {
+        createErrorMsg.textContent = "Access code must be 4-20 alphanumeric characters.";
+        createErrorMsg.style.display = 'block';
+        submitBtn.disabled = false;
         return;
     }
 
-    createModal.style.display = 'none';
-    createForm.reset();
-    fetchDocuments();
+    const formData = new FormData();
+    formData.append('title', title);
+
+    if (accessCode) {
+        formData.append('accessCode', accessCode);
+    }
+
+    if (fileInput.files.length > 0) {
+        formData.append('fileToClone', fileInput.files[0]);
+    }
+
+    try {
+        const res = await fetch('/api/documents', { method: 'POST', body: formData });
+
+        if (res.status === 401 || res.status === 403) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        if (!res.ok) {
+            createErrorMsg.textContent = "Failed to create document. Ensure inputs are valid.";
+            createErrorMsg.style.display = 'block';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        createModal.style.display = 'none';
+        createForm.reset();
+        fetchDocuments();
+    } catch (err) {
+        createErrorMsg.textContent = "Network error. Please try again.";
+        createErrorMsg.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+    }
 });
 
 async function fetchDocuments() {
@@ -76,8 +133,7 @@ async function fetchDocuments() {
         card.className = 'doc-card';
 
         card.addEventListener('click', () => {
-            // Check if document is private
-            if (doc.isPublic === false) {
+            if (doc.public === false) {
                 targetPrivateDocId = doc.id;
                 accessModal.style.display = 'flex';
                 document.getElementById('accessCodeInput').focus();
@@ -87,9 +143,7 @@ async function fetchDocuments() {
         });
 
         card.innerHTML = `
-            <div class="doc-title">
-                ${doc.isPublic === false ? '🔒 ' : ''}${doc.title}
-            </div>
+            <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
             <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
         `;
         docGrid.appendChild(card);

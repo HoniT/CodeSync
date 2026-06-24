@@ -31,7 +31,7 @@
         <div id="createErrorMsg" class="error-msg"></div>
         <form id="createForm">
             <label style="font-size: 0.85rem; color: #aaa;">Document Title *</label>
-            <label for="docTitle"></label><input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100">
+            <label for="docTitle"></label><input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100" pattern="^(.|\s)*\S(.|\s)*$">
 
             <label style="font-size: 0.85rem; color: #aaa;">Access Code (Optional for private docs)</label>
             <label for="docAccessCode"></label><input type="text" id="docAccessCode" placeholder="Alphanumeric, 4-20 chars" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$">

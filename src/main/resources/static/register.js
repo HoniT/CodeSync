@@ -1,8 +1,28 @@
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/documents?pageNumber=0&pageSize=1');
+        if (res.ok) window.location.href = 'index.html';
+    } catch (err) {}
+});
+
+document.getElementById('togglePasswordBtn').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.textContent = 'Hide';
+    } else {
+        passwordInput.type = 'password';
+        this.textContent = 'Show';
+    }
+});
+
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errorMsg = document.getElementById('errorMsg');
-    const btn = e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type="submit"]');
+
     btn.disabled = true;
+    errorMsg.style.display = 'none';
 
     try {
         const res = await fetch('/api/auth/register', {
@@ -10,7 +30,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
                 password: document.getElementById('password').value
             })
         });
@@ -18,11 +37,17 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         if (res.ok) {
             window.location.href = 'login.html';
         } else {
-            errorMsg.textContent = "Registration failed. Username/Email may exist.";
+            let backendMessage = "Registration failed. Verify input parameters.";
+            try {
+                const data = await res.json();
+                backendMessage = data.message || data.error || backendMessage;
+            } catch (parseErr) {}
+
+            errorMsg.textContent = backendMessage;
             errorMsg.style.display = 'block';
         }
     } catch (err) {
-        errorMsg.textContent = "Server error. Try again.";
+        errorMsg.textContent = "System error. Please verify network connection.";
         errorMsg.style.display = 'block';
     } finally {
         btn.disabled = false;

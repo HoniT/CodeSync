@@ -42,3 +42,19 @@ button:hover { background-color: #1565c0; }
 .password-wrapper input { margin-bottom: 0; padding-right: 40px; }
 .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.8rem; padding: 0; width: auto; transition: color 0.2s; }
 .toggle-password:hover { color: #fff; background: none; }
+
+.delete-doc-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.delete-doc-btn:hover {
+    background-color: #b80f1f;
+}

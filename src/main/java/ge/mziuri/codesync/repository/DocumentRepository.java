@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, UUID> {
     Page<Document> findAllByCreator_Username(String username, Pageable pageable);
+    Document findByIdAndCreator_Username(UUID id, String username);
 }

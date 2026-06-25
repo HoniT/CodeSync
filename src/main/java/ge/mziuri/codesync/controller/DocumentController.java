@@ -4,7 +4,6 @@ import ge.mziuri.codesync.model.dto.documents.CreateDocumentRequest;
 import ge.mziuri.codesync.model.dto.documents.DocumentDetailDto;
 import ge.mziuri.codesync.service.DocumentService;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +31,7 @@ public class DocumentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentDetailDto> getDocument(@PathVariable("id") UUID id, @PathParam("accessCode") String accessCode) {
+    public ResponseEntity<DocumentDetailDto> getDocument(@PathVariable("id") UUID id, @RequestParam(required = false) String accessCode) {
         return ResponseEntity.ok(documentService.getDocument(id, accessCode));
     }
 
@@ -43,5 +42,11 @@ public class DocumentController {
             @RequestParam(required = false) String sortParam
     ) {
         return ResponseEntity.ok(documentService.getDocumentsByUser(pageNumber, pageSize, sortParam));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocument(@PathVariable("id") UUID id) {
+        documentService.deleteDocument(id);
+        return ResponseEntity.noContent().build();
     }
 }

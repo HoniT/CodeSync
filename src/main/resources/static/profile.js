@@ -40,7 +40,31 @@ window.addEventListener('DOMContentLoaded', async () => {
                 <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
                 <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
                 <div class="doc-meta">Last Saved: ${new Date(doc.lastSavedAt).toLocaleDateString()}</div>
+                <button class="delete-doc-btn">Delete</button>
             `;
+
+            const deleteBtn = card.querySelector('.delete-doc-btn');
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+
+                if (confirm(`Are you sure you want to delete "${doc.title}"?`)) {
+                    try {
+                        const deleteRes = await fetch(`/api/documents/${doc.id}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (deleteRes.ok) {
+                            card.remove(); // Instantly remove the card from the UI upon success
+                        } else {
+                            alert('Failed to delete the document.');
+                        }
+                    } catch (err) {
+                        console.error('Error deleting document:', err);
+                        alert('An error occurred while deleting.');
+                    }
+                }
+            });
+
             grid.appendChild(card);
         });
 

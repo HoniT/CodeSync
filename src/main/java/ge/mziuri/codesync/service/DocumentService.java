@@ -12,12 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class DocumentService {
@@ -27,6 +26,8 @@ public class DocumentService {
     private UserRepository userRepository;
     @Autowired
     private DocumentMapper documentMapper;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public DocumentDetailDto createDocument(CreateDocumentRequest request) {
         String initialContent = "";
@@ -96,5 +97,16 @@ public class DocumentService {
                 .stream()
                 .map(d -> documentMapper.entityToDetailsDto(d, false))
                 .toList();
+    }
+
+    public void deleteDocument(UUID id) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        Document document = documentRepository.findByIdAndCreator_Username(id, username);
+        if(document == null) throw new HttpErrorException(HttpStatus.NOT_FOUND.value(), "The following document wasn't found for this user");
+
+        // Kicking the connected users
+        messagingTemplate.convertAndSend("/topic/document/" + id, Optional.of(Map.of("type", "DOCUMENT_DELETED")));
+
+        documentRepository.delete(document);
     }
 }

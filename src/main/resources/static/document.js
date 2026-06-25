@@ -61,6 +61,14 @@ function connectWebSocket() {
 
         stompClient.subscribe(`/topic/document/${docId}`, function (message) {
             const payload = JSON.parse(message.body);
+
+            if (payload.type === "DOCUMENT_DELETED") {
+                alert("The creator has deleted this document. You are being redirected.");
+                if (stompClient) stompClient.disconnect();
+                window.location.href = '/index.html';
+                return;
+            }
+
             if (payload.senderId === clientId) {
                 return;
             }

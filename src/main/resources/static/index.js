@@ -1,3 +1,16 @@
+async function getErrorMsg(res) {
+    try {
+        let msg = await res.text();
+        try {
+            const data = JSON.parse(msg);
+            msg = data.message || data.error || msg;
+        } catch (e) {}
+        return msg || `HTTP Error ${res.status}`;
+    } catch (e) {
+        return `HTTP Error ${res.status}`;
+    }
+}
+
 const createModal = document.getElementById('createModal');
 const createForm = document.getElementById('createForm');
 const createErrorMsg = document.getElementById('createErrorMsg');
@@ -8,12 +21,10 @@ const accessForm = document.getElementById('accessForm');
 const accessErrorMsg = document.getElementById('accessErrorMsg');
 const sortSelect = document.getElementById('sortSelect');
 
-// Pagination State
 let currentPage = 0;
 const pageSize = 12;
 let targetPrivateDocId = null;
 
-// Reset to page 0 when sorting changes
 sortSelect.addEventListener('change', () => {
     currentPage = 0;
     fetchDocuments();
@@ -65,15 +76,13 @@ accessForm.addEventListener('submit', async (e) => {
 
         if (res.ok) {
             window.location.href = `document.html?id=${targetPrivateDocId}&accessCode=${encodeURIComponent(code)}`;
-        } else if (res.status === 401 || res.status === 403) {
-            accessErrorMsg.textContent = "Incorrect access code.";
-            accessErrorMsg.style.display = 'block';
-        } else {
-            accessErrorMsg.textContent = "Unable to verify document. Try again.";
-            accessErrorMsg.style.display = 'block';
+            return;
         }
+
+        accessErrorMsg.textContent = await getErrorMsg(res);
+        accessErrorMsg.style.display = 'block';
     } catch (err) {
-        accessErrorMsg.textContent = "Network error. Please try again.";
+        accessErrorMsg.textContent = err.message || "Network error. Please try again.";
         accessErrorMsg.style.display = 'block';
     } finally {
         submitBtn.disabled = false;
@@ -111,7 +120,7 @@ createForm.addEventListener('submit', async (e) => {
         }
 
         if (!res.ok) {
-            createErrorMsg.textContent = "Failed to create document. Ensure inputs are valid.";
+            createErrorMsg.textContent = await getErrorMsg(res);
             createErrorMsg.style.display = 'block';
             submitBtn.disabled = false;
             return;
@@ -119,12 +128,10 @@ createForm.addEventListener('submit', async (e) => {
 
         createModal.style.display = 'none';
         createForm.reset();
-
-        // Reset to page 0 to see the new document
         currentPage = 0;
         fetchDocuments();
     } catch (err) {
-        createErrorMsg.textContent = "Network error. Please try again.";
+        createErrorMsg.textContent = err.message || "Network error. Please try again.";
         createErrorMsg.style.display = 'block';
     } finally {
         submitBtn.disabled = false;
@@ -132,51 +139,55 @@ createForm.addEventListener('submit', async (e) => {
 });
 
 async function fetchDocuments() {
-    const currentSort = sortSelect.value;
-    const res = await fetch(`/api/documents?pageNumber=${currentPage}&pageSize=${pageSize}&sortParam=${currentSort}`);
+    try {
+        const currentSort = sortSelect.value;
+        const res = await fetch(`/api/documents?pageNumber=${currentPage}&pageSize=${pageSize}&sortParam=${currentSort}`);
 
-    if (res.status === 401 || res.status === 403) {
-        window.location.href = 'login.html';
-        return;
-    }
+        if (res.status === 401 || res.status === 403) {
+            window.location.href = 'login.html';
+            return;
+        }
 
-    const docs = await res.json();
-    docGrid.innerHTML = '';
+        if (!res.ok) {
+            alert(`Error fetching documents: ${await getErrorMsg(res)}`);
+            return;
+        }
 
-    if (docs.length === 0 && currentPage > 0) {
-        // Failsafe if user navigates to an empty page
-        currentPage--;
-        fetchDocuments();
-        return;
-    }
+        const docs = await res.json();
+        docGrid.innerHTML = '';
 
-    docs.forEach(doc => {
-        const card = document.createElement('div');
-        card.className = 'doc-card';
+        if (docs.length === 0 && currentPage > 0) {
+            currentPage--;
+            fetchDocuments();
+            return;
+        }
 
-        card.addEventListener('click', () => {
-            if (doc.public === false) {
-                targetPrivateDocId = doc.id;
-                accessModal.style.display = 'flex';
-                document.getElementById('accessCodeInput').focus();
-            } else {
-                window.location.href = `document.html?id=${doc.id}`;
-            }
+        docs.forEach(doc => {
+            const card = document.createElement('div');
+            card.className = 'doc-card';
+            card.addEventListener('click', () => {
+                if (doc.public === false) {
+                    targetPrivateDocId = doc.id;
+                    accessModal.style.display = 'flex';
+                    document.getElementById('accessCodeInput').focus();
+                } else {
+                    window.location.href = `document.html?id=${doc.id}`;
+                }
+            });
+
+            card.innerHTML = `
+                <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
+                <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
+            `;
+            docGrid.appendChild(card);
         });
 
-        card.innerHTML = `
-            <div class="doc-title">${doc.public === false ? 'Private: ' : ''}${doc.title}</div>
-            <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
-        `;
-        docGrid.appendChild(card);
-    });
-
-    // Update Pagination UI
-    document.getElementById('pageIndicator').textContent = `Page ${currentPage + 1}`;
-    document.getElementById('btnPrevPage').disabled = currentPage === 0;
-
-    // If the returned docs length equals the page size, there is likely a next page
-    document.getElementById('btnNextPage').disabled = docs.length < pageSize;
+        document.getElementById('pageIndicator').textContent = `Page ${currentPage + 1}`;
+        document.getElementById('btnPrevPage').disabled = currentPage === 0;
+        document.getElementById('btnNextPage').disabled = docs.length < pageSize;
+    } catch (err) {
+        alert(err.message || "Network error. Please try again.");
+    }
 }
 
 fetchDocuments();

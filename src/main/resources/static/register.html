@@ -9,22 +9,22 @@
 <body>
 <div class="auth-wrapper">
     <div class="auth-box">
-        <h2>Account Registration</h2>
+        <h2>Create Account</h2>
         <div id="errorMsg" class="error-msg"></div>
         <form id="registerForm">
-            <label for="username"></label>
-            <input type="text" id="username" placeholder="Username" required>
+            <label class="field-label" for="username">Username</label>
+            <input type="text" id="username" placeholder="Choose a username" required>
 
-            <label for="password"></label>
+            <label class="field-label" for="password">Password</label>
             <div class="password-wrapper">
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="password" id="password" placeholder="Create a password" required>
                 <button type="button" id="togglePasswordBtn" class="toggle-password" tabindex="-1">Show</button>
             </div>
 
             <button type="submit">Register</button>
         </form>
-        <p style="margin-top: 15px; font-size: 0.9rem;">
-            Existing user? <a href="login.html">Log in here</a>
+        <p style="margin-top: 20px; font-size: 0.9rem; text-align: center;">
+            Already have an account? <a href="login.html">Log in here</a>
         </p>
     </div>
 </div>

@@ -9,22 +9,22 @@
 <body>
 <div class="auth-wrapper">
     <div class="auth-box">
-        <h2>CodeSync Login</h2>
+        <h2>Welcome Back</h2>
         <div id="errorMsg" class="error-msg"></div>
         <form id="loginForm">
-            <label for="username"></label>
-            <input type="text" id="username" placeholder="Username" required>
+            <label class="field-label" for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your username" required>
 
-            <label for="password"></label>
+            <label class="field-label" for="password">Password</label>
             <div class="password-wrapper">
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="password" id="password" placeholder="Enter your password" required>
                 <button type="button" id="togglePasswordBtn" class="toggle-password" tabindex="-1">Show</button>
             </div>
 
-            <button type="submit">Authenticate</button>
+            <button type="submit">Log In</button>
         </form>
-        <p style="margin-top: 15px; font-size: 0.9rem;">
-            Require access? <a href="register.html">Register here</a>
+        <p style="margin-top: 20px; font-size: 0.9rem; text-align: center;">
+            Don't have an account? <a href="register.html">Register here</a>
         </p>
     </div>
 </div>

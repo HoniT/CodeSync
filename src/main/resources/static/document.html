@@ -10,18 +10,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
-<div class="container" style="max-width: 1400px; padding: 10px;">
-    <div class="header" style="padding: 10px 0; margin-bottom: 10px;">
-        <h3 id="docTitleHeader">Loading Document...</h3>
-        <button id="btnBack" class="btn-sm" style="width: auto;">← Back to Dashboard</button>
+<div class="container-fluid">
+    <div class="header" style="margin-bottom: 20px;">
+        <h3 id="docTitleHeader" style="font-weight: 600;">Loading Document...</h3>
+        <div class="header-actions">
+            <button id="btnBack" class="btn-sm btn-secondary">← Back to Dashboard</button>
+        </div>
     </div>
 
     <div class="editor-container">
         <div class="editor-status">
-            <span id="connStatus"><span class="status-indicator status-offline"></span>Connecting...</span>
-            <span id="saveStatus" style="color: #888;">All changes saved</span>
+            <div class="status-group">
+                <span id="connIndicator" class="status-indicator status-offline"></span>
+                <span id="connText">Connecting...</span>
+            </div>
+            <span id="saveStatus" style="color: var(--text-muted);">All changes saved</span>
         </div>
-        <label for="editor"></label><textarea id="editor" disabled placeholder="Establishing real-time connection..."></textarea>
+        <label for="editor" style="display:none;">Code Editor</label>
+        <textarea id="editor" disabled placeholder="Establishing real-time connection..."></textarea>
     </div>
 </div>
 <script src="document.js"></script>

@@ -1,3 +1,16 @@
+async function getErrorMsg(res) {
+    try {
+        let msg = await res.text();
+        try {
+            const data = JSON.parse(msg);
+            msg = data.message || data.error || msg;
+        } catch (e) {}
+        return msg || `HTTP Error ${res.status}`;
+    } catch (e) {
+        return `HTTP Error ${res.status}`;
+    }
+}
+
 const accessModal = document.getElementById('accessModal');
 const accessForm = document.getElementById('accessForm');
 const accessErrorMsg = document.getElementById('accessErrorMsg');
@@ -47,15 +60,13 @@ accessForm.addEventListener('submit', async (e) => {
 
         if (res.ok) {
             window.location.href = `document.html?id=${targetPrivateDocId}&accessCode=${encodeURIComponent(code)}`;
-        } else if (res.status === 401 || res.status === 403) {
-            accessErrorMsg.textContent = "Incorrect access code.";
-            accessErrorMsg.style.display = 'block';
-        } else {
-            accessErrorMsg.textContent = "Unable to verify document. Try again.";
-            accessErrorMsg.style.display = 'block';
+            return;
         }
+
+        accessErrorMsg.textContent = await getErrorMsg(res);
+        accessErrorMsg.style.display = 'block';
     } catch (err) {
-        accessErrorMsg.textContent = "Network error. Please try again.";
+        accessErrorMsg.textContent = err.message || "Network error. Please try again.";
         accessErrorMsg.style.display = 'block';
     } finally {
         submitBtn.disabled = false;
@@ -68,7 +79,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!userRes.ok) throw new Error("Unauthorized");
         const userData = await userRes.json();
         document.getElementById('usernameHeader').textContent = `${userData.username}'s Profile`;
-
         fetchMyDocuments();
     } catch (err) {
         window.location.href = 'login.html';
@@ -78,14 +88,19 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function fetchMyDocuments() {
     try {
         const docsRes = await fetch(`/api/documents/me?pageNumber=${currentPage}&pageSize=${pageSize}&sortParam=createdDesc`);
-        if (!docsRes.ok) throw new Error("Unauthorized");
-        const docs = await docsRes.json();
 
+        if (!docsRes.ok) {
+            alert(`Error fetching profile: ${await getErrorMsg(docsRes)}`);
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const docs = await docsRes.json();
         const grid = document.getElementById('myDocGrid');
         grid.innerHTML = '';
 
         if (docs.length === 0 && currentPage === 0) {
-            grid.innerHTML = '<p style="color: #aaa; grid-column: 1 / -1;">You have not created any documents yet.</p>';
+            grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1 / -1;">You have not created any documents yet.</p>';
             document.getElementById('btnPrevPage').disabled = true;
             document.getElementById('btnNextPage').disabled = true;
             return;
@@ -112,9 +127,9 @@ async function fetchMyDocuments() {
             });
 
             card.innerHTML = `
-                <div class="doc-title">${doc.public === false ? 'Private: ' : ''}${doc.title}</div>
+                <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
                 <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
-                <div class="doc-meta">Last Saved: ${new Date(doc.lastSavedAt).toLocaleDateString()}</div>
+                <div class="doc-meta" style="margin-bottom: auto;">Last Saved: ${new Date(doc.lastSavedAt).toLocaleDateString()}</div>
                 <button class="delete-doc-btn">Delete</button>
             `;
 
@@ -124,22 +139,19 @@ async function fetchMyDocuments() {
 
                 if (confirm(`Are you sure you want to delete "${doc.title}"?`)) {
                     deleteBtn.disabled = true;
-                    deleteBtn.textContent = '...';
+                    deleteBtn.textContent = 'Processing...';
 
                     try {
-                        const deleteRes = await fetch(`/api/documents/${doc.id}`, {
-                            method: 'DELETE'
-                        });
-
+                        const deleteRes = await fetch(`/api/documents/${doc.id}`, { method: 'DELETE' });
                         if (deleteRes.ok) {
                             fetchMyDocuments();
                         } else {
-                            alert('Failed to delete the document.');
+                            alert(`Failed to delete document: ${await getErrorMsg(deleteRes)}`);
                             deleteBtn.disabled = false;
                             deleteBtn.textContent = 'Delete';
                         }
                     } catch (err) {
-                        alert('An error occurred while deleting.');
+                        alert(`An error occurred: ${err.message}`);
                         deleteBtn.disabled = false;
                         deleteBtn.textContent = 'Delete';
                     }
@@ -152,7 +164,6 @@ async function fetchMyDocuments() {
         document.getElementById('pageIndicator').textContent = `Page ${currentPage + 1}`;
         document.getElementById('btnPrevPage').disabled = currentPage === 0;
         document.getElementById('btnNextPage').disabled = docs.length < pageSize;
-
     } catch (err) {
         window.location.href = 'login.html';
     }

@@ -11,14 +11,14 @@
     <div class="header">
         <h2>CodeSync</h2>
         <div class="header-actions">
-            <select id="sortSelect" class="btn-sm">
+            <select id="sortSelect" class="btn-sm" style="margin-bottom: 0;">
                 <option value="createdDesc">Newest Created</option>
                 <option value="createdAsc">Oldest Created</option>
                 <option value="savedDesc">Recently Saved</option>
                 <option value="savedAsc">Oldest Saved</option>
             </select>
             <button id="btnNewDoc" class="btn-sm">+ New Document</button>
-            <button id="btnProfile" class="btn-sm" style="background-color: #4CAF50;">My Profile</button>
+            <button id="btnProfile" class="btn-sm btn-success">My Profile</button>
         </div>
     </div>
 
@@ -36,17 +36,17 @@
         <h3>Create New Document</h3>
         <div id="createErrorMsg" class="error-msg"></div>
         <form id="createForm">
-            <label style="font-size: 0.85rem; color: #aaa;">Document Title *</label>
+            <label class="field-label" for="docTitle">Document Title *</label>
             <input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100">
 
-            <label style="font-size: 0.85rem; color: #aaa;">Access Code (Optional for private docs)</label>
+            <label class="field-label" for="docAccessCode">Access Code (Optional for private docs)</label>
             <input type="text" id="docAccessCode" placeholder="Alphanumeric, 4-20 chars" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$">
 
-            <label style="font-size: 0.85rem; color: #aaa;">Clone from File (Optional)</label>
-            <input type="file" id="docFileToClone" style="background: none; padding: 10px 0;">
+            <label class="field-label" for="docFileToClone">Clone from File (Optional)</label>
+            <input type="file" id="docFileToClone">
 
             <div class="modal-actions">
-                <button type="button" id="btnCancel" class="btn-danger">Cancel</button>
+                <button type="button" id="btnCancel" class="btn-secondary">Cancel</button>
                 <button type="submit" id="btnSubmitCreate">Create</button>
             </div>
         </form>
@@ -56,12 +56,13 @@
 <div id="accessModal" class="modal">
     <div class="modal-content">
         <h3>Private Document</h3>
-        <p style="margin-bottom: 15px; font-size: 0.9rem; color: #aaa;">This document requires an access code.</p>
+        <p style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);">This document requires an access code.</p>
         <div id="accessErrorMsg" class="error-msg"></div>
         <form id="accessForm">
+            <label class="field-label" for="accessCodeInput">Access Code</label>
             <input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
             <div class="modal-actions">
-                <button type="button" id="btnCancelAccess" class="btn-danger">Cancel</button>
+                <button type="button" id="btnCancelAccess" class="btn-secondary">Cancel</button>
                 <button type="submit" id="btnSubmitAccess">Join Document</button>
             </div>
         </form>

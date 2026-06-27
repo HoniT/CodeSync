@@ -1,3 +1,16 @@
+async function getErrorMsg(res) {
+    try {
+        let msg = await res.text();
+        try {
+            const data = JSON.parse(msg);
+            msg = data.message || data.error || msg;
+        } catch (e) {}
+        return msg || `HTTP Error ${res.status}`;
+    } catch (e) {
+        return `HTTP Error ${res.status}`;
+    }
+}
+
 const urlParams = new URLSearchParams(window.location.search);
 const docId = urlParams.get('id');
 const accessCode = urlParams.get('accessCode');
@@ -8,7 +21,8 @@ const clientId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toStrin
 
 const dmp = new diff_match_patch();
 const editor = document.getElementById('editor');
-const connStatus = document.getElementById('connStatus');
+const connIndicator = document.getElementById('connIndicator');
+const connText = document.getElementById('connText');
 const titleHeader = document.getElementById('docTitleHeader');
 const saveStatus = document.getElementById('saveStatus');
 
@@ -21,7 +35,6 @@ document.getElementById('btnBack').addEventListener('click', () => {
 
 async function initDocument() {
     try {
-        // Build the correct URL depending on if an access code was provided
         let fetchUrl = `/api/documents/${docId}`;
         if (accessCode) {
             fetchUrl += `?accessCode=${encodeURIComponent(accessCode)}`;
@@ -29,13 +42,16 @@ async function initDocument() {
 
         const res = await fetch(fetchUrl);
 
-        if (res.status === 401 || res.status === 403) {
-            alert("Unauthorized. Incorrect access code or session expired.");
+        if (!res.ok) {
+            const errMsg = await getErrorMsg(res);
+            if (res.status === 401 || res.status === 403) {
+                alert(`Access Denied: ${errMsg}`);
+            } else {
+                alert(`Error: ${errMsg}`);
+            }
             window.location.href = 'index.html';
             return;
         }
-
-        if (!res.ok) throw new Error("Failed to load document");
 
         const doc = await res.json();
         titleHeader.textContent = doc.title || "Untitled Document";
@@ -44,7 +60,7 @@ async function initDocument() {
 
         connectWebSocket();
     } catch (err) {
-        alert("Error loading document.");
+        alert(`Network Error: ${err.message}`);
         window.location.href = 'index.html';
     }
 }
@@ -55,7 +71,8 @@ function connectWebSocket() {
     stompClient.debug = null;
 
     stompClient.connect({}, function (frame) {
-        connStatus.innerHTML = '<span class="status-indicator status-live"></span>Live';
+        connIndicator.className = 'status-indicator status-live';
+        connText.textContent = 'Live';
         editor.disabled = false;
         editor.placeholder = "Start typing...";
 
@@ -69,14 +86,13 @@ function connectWebSocket() {
                 return;
             }
 
-            if (payload.senderId === clientId) {
-                return;
-            }
+            if (payload.senderId === clientId) return;
 
             applyIncomingPatch(payload.patchText);
         });
     }, function(error) {
-        connStatus.innerHTML = '<span class="status-indicator status-offline"></span>Disconnected. Retrying...';
+        connIndicator.className = 'status-indicator status-offline';
+        connText.textContent = 'Disconnected. Retrying...';
         editor.disabled = true;
         setTimeout(connectWebSocket, 5000);
     });
@@ -111,7 +127,6 @@ function applyIncomingPatch(patchTextString) {
     const cursorStart = editor.selectionStart;
     const cursorEnd = editor.selectionEnd;
 
-    // Apply remote patch to our local text box seamlessly
     const results = dmp.patch_apply(patches, editor.value);
     const newMergedText = results[0];
 

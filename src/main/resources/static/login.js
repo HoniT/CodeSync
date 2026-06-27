@@ -1,3 +1,16 @@
+async function getErrorMsg(res) {
+    try {
+        let msg = await res.text();
+        try {
+            const data = JSON.parse(msg);
+            msg = data.message || data.error || msg;
+        } catch (e) {}
+        return msg || `HTTP Error ${res.status}`;
+    } catch (e) {
+        return `HTTP Error ${res.status}`;
+    }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/api/documents?pageNumber=0&pageSize=1');
@@ -6,14 +19,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.getElementById('togglePasswordBtn').addEventListener('click', function() {
-    const passwordInput = document.getElementById('password');
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        this.textContent = 'Hide';
-    } else {
-        passwordInput.type = 'password';
-        this.textContent = 'Show';
-    }
+    const pwd = document.getElementById('password');
+    pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    this.textContent = pwd.type === 'password' ? 'Show' : 'Hide';
 });
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -36,18 +44,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         if (res.ok) {
             window.location.href = 'index.html';
-        } else {
-            let backendMessage = "Authentication failed. Invalid credentials.";
-            try {
-                const data = await res.json();
-                backendMessage = data.message || data.error || backendMessage;
-            } catch (parseErr) {}
-
-            errorMsg.textContent = backendMessage;
-            errorMsg.style.display = 'block';
+            return;
         }
+
+        errorMsg.textContent = await getErrorMsg(res);
+        errorMsg.style.display = 'block';
     } catch (err) {
-        errorMsg.textContent = "System error. Please verify network connection.";
+        errorMsg.textContent = err.message || "Network error. Please try again.";
         errorMsg.style.display = 'block';
     } finally {
         btn.disabled = false;

@@ -18,7 +18,29 @@
 
   <h3 style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">My Created Documents</h3>
   <div id="myDocGrid" class="doc-grid"></div>
+
+  <div class="pagination-controls">
+    <button id="btnPrevPage" disabled>Previous</button>
+    <span id="pageIndicator" class="page-indicator">Page 1</span>
+    <button id="btnNextPage" disabled>Next</button>
+  </div>
 </div>
+
+<div id="accessModal" class="modal">
+  <div class="modal-content">
+    <h3>Private Document</h3>
+    <p style="margin-bottom: 15px; font-size: 0.9rem; color: #aaa;">This document requires an access code.</p>
+    <div id="accessErrorMsg" class="error-msg"></div>
+    <form id="accessForm">
+      <input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
+      <div class="modal-actions">
+        <button type="button" id="btnCancelAccess" class="btn-danger">Cancel</button>
+        <button type="submit" id="btnSubmitAccess">Join Document</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="profile.js"></script>
 </body>
 </html>

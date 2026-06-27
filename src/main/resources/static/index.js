@@ -8,9 +8,28 @@ const accessForm = document.getElementById('accessForm');
 const accessErrorMsg = document.getElementById('accessErrorMsg');
 const sortSelect = document.getElementById('sortSelect');
 
+// Pagination State
+let currentPage = 0;
+const pageSize = 12;
 let targetPrivateDocId = null;
 
-sortSelect.addEventListener('change', fetchDocuments);
+// Reset to page 0 when sorting changes
+sortSelect.addEventListener('change', () => {
+    currentPage = 0;
+    fetchDocuments();
+});
+
+document.getElementById('btnPrevPage').addEventListener('click', () => {
+    if (currentPage > 0) {
+        currentPage--;
+        fetchDocuments();
+    }
+});
+
+document.getElementById('btnNextPage').addEventListener('click', () => {
+    currentPage++;
+    fetchDocuments();
+});
 
 document.getElementById('btnNewDoc').addEventListener('click', () => {
     createModal.style.display = 'flex';
@@ -80,14 +99,8 @@ createForm.addEventListener('submit', async (e) => {
 
     const formData = new FormData();
     formData.append('title', title);
-
-    if (accessCode) {
-        formData.append('accessCode', accessCode);
-    }
-
-    if (fileInput.files.length > 0) {
-        formData.append('fileToClone', fileInput.files[0]);
-    }
+    if (accessCode) formData.append('accessCode', accessCode);
+    if (fileInput.files.length > 0) formData.append('fileToClone', fileInput.files[0]);
 
     try {
         const res = await fetch('/api/documents', { method: 'POST', body: formData });
@@ -106,6 +119,9 @@ createForm.addEventListener('submit', async (e) => {
 
         createModal.style.display = 'none';
         createForm.reset();
+
+        // Reset to page 0 to see the new document
+        currentPage = 0;
         fetchDocuments();
     } catch (err) {
         createErrorMsg.textContent = "Network error. Please try again.";
@@ -117,7 +133,7 @@ createForm.addEventListener('submit', async (e) => {
 
 async function fetchDocuments() {
     const currentSort = sortSelect.value;
-    const res = await fetch(`/api/documents?pageNumber=0&pageSize=50&sortParam=${currentSort}`);
+    const res = await fetch(`/api/documents?pageNumber=${currentPage}&pageSize=${pageSize}&sortParam=${currentSort}`);
 
     if (res.status === 401 || res.status === 403) {
         window.location.href = 'login.html';
@@ -126,6 +142,13 @@ async function fetchDocuments() {
 
     const docs = await res.json();
     docGrid.innerHTML = '';
+
+    if (docs.length === 0 && currentPage > 0) {
+        // Failsafe if user navigates to an empty page
+        currentPage--;
+        fetchDocuments();
+        return;
+    }
 
     docs.forEach(doc => {
         const card = document.createElement('div');
@@ -142,12 +165,18 @@ async function fetchDocuments() {
         });
 
         card.innerHTML = `
-            <div class="doc-title">${doc.public === false ? '🔒 ' : ''}${doc.title}</div>
+            <div class="doc-title">${doc.public === false ? 'Private: ' : ''}${doc.title}</div>
             <div class="doc-meta">Created: ${new Date(doc.createdAt).toLocaleDateString()}</div>
-            <div class="doc-meta">Last Saved: ${new Date(doc.lastSavedAt).toLocaleDateString()}</div>
         `;
         docGrid.appendChild(card);
     });
+
+    // Update Pagination UI
+    document.getElementById('pageIndicator').textContent = `Page ${currentPage + 1}`;
+    document.getElementById('btnPrevPage').disabled = currentPage === 0;
+
+    // If the returned docs length equals the page size, there is likely a next page
+    document.getElementById('btnNextPage').disabled = docs.length < pageSize;
 }
 
 fetchDocuments();

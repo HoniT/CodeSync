@@ -23,6 +23,12 @@
     </div>
 
     <div id="docGrid" class="doc-grid"></div>
+
+    <div class="pagination-controls">
+        <button id="btnPrevPage" disabled>Previous</button>
+        <span id="pageIndicator" class="page-indicator">Page 1</span>
+        <button id="btnNextPage" disabled>Next</button>
+    </div>
 </div>
 
 <div id="createModal" class="modal">
@@ -31,13 +37,13 @@
         <div id="createErrorMsg" class="error-msg"></div>
         <form id="createForm">
             <label style="font-size: 0.85rem; color: #aaa;">Document Title *</label>
-            <label for="docTitle"></label><input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100" pattern="^(.|\s)*\S(.|\s)*$">
+            <input type="text" id="docTitle" placeholder="My Awesome Document" required maxlength="100">
 
             <label style="font-size: 0.85rem; color: #aaa;">Access Code (Optional for private docs)</label>
-            <label for="docAccessCode"></label><input type="text" id="docAccessCode" placeholder="Alphanumeric, 4-20 chars" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$">
+            <input type="text" id="docAccessCode" placeholder="Alphanumeric, 4-20 chars" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9]*$">
 
             <label style="font-size: 0.85rem; color: #aaa;">Clone from File (Optional)</label>
-            <input type="file" id="docFileToClone" accept=".txt,.md,.java,.js,.html,.css" style="background: none; padding: 10px 0;">
+            <input type="file" id="docFileToClone" style="background: none; padding: 10px 0;">
 
             <div class="modal-actions">
                 <button type="button" id="btnCancel" class="btn-danger">Cancel</button>
@@ -53,7 +59,7 @@
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #aaa;">This document requires an access code.</p>
         <div id="accessErrorMsg" class="error-msg"></div>
         <form id="accessForm">
-            <label for="accessCodeInput"></label><input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
+            <input type="password" id="accessCodeInput" placeholder="Enter Access Code" required>
             <div class="modal-actions">
                 <button type="button" id="btnCancelAccess" class="btn-danger">Cancel</button>
                 <button type="submit" id="btnSubmitAccess">Join Document</button>

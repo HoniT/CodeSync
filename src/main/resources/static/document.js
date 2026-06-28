@@ -124,15 +124,52 @@ function applyIncomingPatch(patchTextString) {
     if (!patchTextString) return;
 
     const patches = dmp.patch_fromText(patchTextString);
+
     const cursorStart = editor.selectionStart;
     const cursorEnd = editor.selectionEnd;
+    const oldText = editor.value;
 
-    const results = dmp.patch_apply(patches, editor.value);
+    const results = dmp.patch_apply(patches, oldText);
     const newMergedText = results[0];
+
+    const diffs = dmp.diff_main(oldText, newMergedText);
+
+    let oldIndex = 0;
+    let startShift = 0;
+    let endShift = 0;
+
+    for (let i = 0; i < diffs.length; i++) {
+        const op = diffs[i][0];   // Operation type (0: EQUAL, 1: INSERT, -1: DELETE)
+        const text = diffs[i][1];
+        const len = text.length;
+
+        if (op === 0) {
+            // EQUAL: Text matches, just move our tracker forward
+            oldIndex += len;
+        } else if (op === -1) {
+            // DELETE: If text was deleted before our cursor, shift the cursor backward
+            if (oldIndex < cursorStart) {
+                startShift -= Math.min(len, cursorStart - oldIndex);
+            }
+            if (oldIndex < cursorEnd) {
+                endShift -= Math.min(len, cursorEnd - oldIndex);
+            }
+            oldIndex += len;
+        } else if (op === 1) {
+            // INSERT: If text was inserted before our cursor, shift the cursor forward
+            if (oldIndex <= cursorStart) {
+                startShift += len;
+            }
+            if (oldIndex <= cursorEnd) {
+                endShift += len;
+            }
+        }
+    }
 
     editor.value = newMergedText;
     previousText = newMergedText;
-    editor.setSelectionRange(cursorStart, cursorEnd);
+
+    editor.setSelectionRange(cursorStart + startShift, cursorEnd + endShift);
 }
 
 initDocument();

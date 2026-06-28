@@ -1,9 +1,13 @@
 package ge.mziuri.codesync.model.dto.auth;
 
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
     @Pattern(regexp = "^[a-zA-Z0-9]{8,20}$", message = "Username must be 8-20 characters and no special characters")
     private String username;

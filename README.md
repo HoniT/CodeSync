@@ -11,6 +11,7 @@ it leverages WebSockets and stateless JWT authentication to provide secure, inst
 * Automated Migrations: Database schema versioning and initializations handled seamlessly via Flyway.
 * Responsive frontend made with HTML, CSS and JS.
 * Changeable settings for document editing: Markdown and HTML viewer, can visualize code with Monaco (VS Code UI).
+* Unit tests
 
 ### API Highlights
 #### Authentication

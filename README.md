@@ -9,6 +9,8 @@ it leverages WebSockets and stateless JWT authentication to provide secure, inst
 * Smart Initialization: Create new collaborative documents from scratch or instantly clone existing code files via multipart file uploads.
 * Modern Security: Fully configured CORS, password hashing (BCrypt), and robust preflight request handling.
 * Automated Migrations: Database schema versioning and initializations handled seamlessly via Flyway.
+* Responsive frontend made with HTML, CSS and JS.
+* Changeable settings for document editing: Markdown and HTML viewer, can visualize code with Monaco (VS Code UI).
 
 ### API Highlights
 #### Authentication

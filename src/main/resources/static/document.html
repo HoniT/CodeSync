@@ -4,32 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor - CodeSync</title>
+
     <link rel="stylesheet" href="styles.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body>
+<body class="page-document">
 <div class="container-fluid">
-    <div class="header" style="margin-bottom: 20px;">
-        <h3 id="docTitleHeader" style="font-weight: 600;">Loading Document...</h3>
-        <div class="header-actions">
+
+    <div class="doc-header">
+        <h3 id="docTitleHeader" class="doc-title">Loading Document...</h3>
+
+        <div class="header-actions-wrapper">
+            <div class="settings-container">
+                <button id="btnSettings" class="btn-sm btn-secondary">⚙ Settings</button>
+                <div id="settingsPanel" class="settings-panel">
+
+                    <div class="settings-group">
+                        <label for="editorTypeSelect">Editor Core</label>
+                        <select id="editorTypeSelect">
+                            <option value="monaco">Monaco (VS Code)</option>
+                            <option value="textarea">Plain Textarea</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group" id="languageGroup">
+                        <label for="languageSelect">Monaco Language</label>
+                        <select id="languageSelect">
+                            <option value="java">Java</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="python">Python</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="plaintext">Plain Text</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="toggleMarkdown"> Markdown Preview
+                        </label>
+                    </div>
+
+                    <div class="settings-group mb-0">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="toggleHtml"> HTML Viewer
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
             <button id="btnBack" class="btn-sm btn-secondary">← Back to Dashboard</button>
         </div>
     </div>
 
-    <div class="editor-container">
-        <div class="editor-status">
-            <div class="status-group">
-                <span id="connIndicator" class="status-indicator status-offline"></span>
-                <span id="connText">Connecting...</span>
-            </div>
-            <span id="saveStatus" style="color: var(--text-muted);">All changes saved</span>
+    <div class="editor-status">
+        <div class="status-group">
+            <span id="connIndicator" class="status-indicator status-offline"></span>
+            <span id="connText">Connecting...</span>
         </div>
-        <label for="editor" style="display:none;">Code Editor</label>
-        <textarea id="editor" disabled placeholder="Establishing real-time connection..."></textarea>
+        <span id="saveStatus" class="save-status-text">All changes saved</span>
+    </div>
+
+    <div class="workspace-layout">
+        <div class="editor-pane">
+            <div id="monacoContainer" style="display: none;"></div>
+            <textarea id="plainTextarea" style="display: none;"></textarea>
+        </div>
+
+        <div id="previewPane" class="preview-pane">
+            <div id="previewContent" class="preview-content"></div>
+            <iframe id="htmlPreviewFrame" style="display:none; width: 100%; height: 100%; border: none; background: #fff; border-radius: 6px;"></iframe>
+        </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs/loader.min.js"></script>
 <script src="document.js"></script>
 </body>
 </html>

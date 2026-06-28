@@ -183,7 +183,10 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .field-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 500; }
 
 .delete-doc-btn { background-color: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-top: 16px; font-size: 0.85rem; align-self: flex-start; width: auto; }
-.delete-doc-btn:hover { background-color: var(--danger-color); color: white; }
+button.delete-doc-btn:hover:not(:disabled) {
+    background-color: var(--danger-color);
+    color: white;
+}
 
 .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 32px; padding-bottom: 32px; flex-wrap: wrap; }
 .pagination-controls button { width: auto; padding: 8px 16px; background-color: var(--surface-color); border: 1px solid var(--surface-border); color: var(--text-main); }
@@ -270,5 +273,171 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .pagination-controls button {
         width: 100%;
+    }
+}
+
+.page-document .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.page-document .workspace-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    height: 70vh;
+    margin-top: 10px;
+}
+
+.page-document .editor-pane,
+.page-document .preview-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+}
+
+.page-document #monacoContainer,
+.page-document #plainTextarea {
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.page-document #plainTextarea {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    padding: 12px;
+    resize: none;
+    background-color: var(--surface-color);
+    color: var(--text-main);
+}
+
+.page-document .preview-pane {
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    background: var(--surface-color);
+    display: none;
+}
+
+.page-document .preview-content {
+    padding: 20px;
+    overflow-y: auto;
+    height: 100%;
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.page-document .settings-container { position: relative; display: inline-block; }
+
+.page-document .settings-panel {
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background: var(--surface-color);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    padding: 16px;
+    width: 260px;
+    z-index: 1000;
+    display: none;
+}
+
+.page-document .settings-panel.active { display: block; animation: slideDownFade 0.2s ease-out; }
+
+@keyframes slideDownFade {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-document .settings-group { margin-bottom: 16px; }
+.page-document .settings-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
+
+.page-document .settings-group select {
+    background-color: var(--bg-color);
+    border-color: var(--surface-border);
+    color: var(--text-main);
+}
+
+@media (max-width: 480px) {
+    .page-document .settings-panel {
+        position: fixed;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}
+
+.page-document .settings-group .checkbox-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    color: var(--text-main);
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+.page-document .checkbox-label input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+@media (max-width: 992px) {
+    .page-document .workspace-layout {
+        flex-direction: column;
+        height: 85vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-document .doc-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .page-document .header-actions-wrapper {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    .page-document .settings-container,
+    .page-document #btnBack {
+        flex: 1;
+    }
+
+    .page-document #btnSettings {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-document .header-actions-wrapper {
+        flex-direction: column;
+    }
+
+    .page-document .settings-container,
+    .page-document #btnBack {
+        width: 100%;
+        flex: none;
+    }
+
+    .page-document .settings-panel {
+        top: 130px;
     }
 }
